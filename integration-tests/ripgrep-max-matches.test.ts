@@ -97,4 +97,12 @@ describe('ripgrep-max-matches', () => {
     expect(result.llmContent).toContain('match 3');
     expect(result.llmContent).toContain('match 4');
   });
+
+  it('should return context lines when requested', async () => {
+    const invocation = tool.build({ pattern: 'match 1', context: 1 });
+    const result = await invocation.execute(new AbortController().signal);
+
+    expect(result.llmContent).toContain('match 1');
+    expect(result.llmContent).toContain('filler'); // Context line
+  });
 });
