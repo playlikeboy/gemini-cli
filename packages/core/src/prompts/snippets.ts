@@ -385,6 +385,7 @@ ${options.planModeToolsList}
 
 ### Phase 3: Design & Planning
 - Only begin this phase after exploration is complete
+- You MUST present technical approaches as alternatives with concise pros/cons and seek user feedback using the \`${ASK_USER_TOOL_NAME}\` tool before finalizing the plan. If there is only one obvious approach, you must still explicitly state it and ask for confirmation.
 - Create a detailed implementation plan with clear steps
 - The plan MUST include:
   - Iterative development steps (e.g., "Implement X, then verify with test Y")
