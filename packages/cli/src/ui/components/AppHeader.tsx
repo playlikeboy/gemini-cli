@@ -5,7 +5,7 @@
  */
 
 import { Box, Text } from 'ink';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { UserAccountManager, AuthType } from '@google/gemini-cli-core';
 import { Tips } from './Tips.js';
 import { useSettings } from '../contexts/SettingsContext.js';
@@ -36,17 +36,18 @@ export const AppHeader = ({ version }: AppHeaderProps) => {
   const { showTips } = useTips();
 
   const authType = config.getContentGeneratorConfig()?.authType;
+  const [email, setEmail] = useState<string | undefined>();
 
-  const { email, tierName } = useMemo(() => {
-    if (!authType) {
-      return { email: undefined, tierName: undefined };
+  useEffect(() => {
+    if (authType) {
+      const userAccountManager = new UserAccountManager();
+      // Even though the current implementation of getCachedGoogleAccount is sync,
+      // it performs file I/O. Moving it to useEffect ensures it doesn't block the render cycle.
+      setEmail(userAccountManager.getCachedGoogleAccount() ?? undefined);
     }
-    const userAccountManager = new UserAccountManager();
-    return {
-      email: userAccountManager.getCachedGoogleAccount(),
-      tierName: config.getUserTierName(),
-    };
-  }, [config, authType]);
+  }, [authType]);
+
+  const tierName = useMemo(() => config.getUserTierName(), [config]);
 
   const showHeader = !(
     settings.merged.ui.hideBanner || config.getScreenReader()
