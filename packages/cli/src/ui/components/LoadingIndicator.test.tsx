@@ -12,6 +12,7 @@ import { StreamingContext } from '../contexts/StreamingContext.js';
 import { StreamingState } from '../types.js';
 import { vi } from 'vitest';
 import * as useTerminalSize from '../hooks/useTerminalSize.js';
+import * as terminalUtils from '../utils/terminalUtils.js';
 
 // Mock GeminiRespondingSpinner
 vi.mock('./GeminiRespondingSpinner.js', () => ({
@@ -34,7 +35,12 @@ vi.mock('../hooks/useTerminalSize.js', () => ({
   useTerminalSize: vi.fn(),
 }));
 
+vi.mock('../utils/terminalUtils.js', () => ({
+  shouldUseEmoji: vi.fn(() => true),
+}));
+
 const useTerminalSizeMock = vi.mocked(useTerminalSize.useTerminalSize);
+const shouldUseEmojiMock = vi.mocked(terminalUtils.shouldUseEmoji);
 
 const renderWithContext = (
   ui: React.ReactElement,
@@ -217,14 +223,15 @@ describe('<LoadingIndicator />', () => {
     const output = lastFrame();
     expect(output).toBeDefined();
     if (output) {
-      expect(output).toContain('Thinking: ');
+      expect(output).toContain('💬');
       expect(output).toContain('Thinking about something...');
       expect(output).not.toContain('and other stuff.');
     }
     unmount();
   });
 
-  it('should use "Thinking: " as the thought indicator', () => {
+  it('should use ASCII fallback thought indicator when emoji is unavailable', () => {
+    shouldUseEmojiMock.mockReturnValue(false);
     const props = {
       thought: {
         subject: 'Thinking with fallback',
@@ -237,7 +244,9 @@ describe('<LoadingIndicator />', () => {
       StreamingState.Responding,
     );
     const output = lastFrame();
-    expect(output).toContain('Thinking: Thinking with fallback');
+    expect(output).toContain('o Thinking with fallback');
+    expect(output).not.toContain('💬');
+    shouldUseEmojiMock.mockReturnValue(true);
     unmount();
   });
 
@@ -255,13 +264,13 @@ describe('<LoadingIndicator />', () => {
       StreamingState.Responding,
     );
     const output = lastFrame();
-    expect(output).toContain('Thinking: ');
+    expect(output).toContain('💬');
     expect(output).toContain('This should be displayed');
     expect(output).not.toContain('This should not be displayed');
     unmount();
   });
 
-  it('should not display thought indicator for non-thought loading phrases', () => {
+  it('should not display thought icon for non-thought loading phrases', () => {
     const { lastFrame, unmount } = renderWithContext(
       <LoadingIndicator
         currentLoadingPhrase="some random tip..."
@@ -269,7 +278,7 @@ describe('<LoadingIndicator />', () => {
       />,
       StreamingState.Responding,
     );
-    expect(lastFrame()).not.toContain('Thinking: ');
+    expect(lastFrame()).not.toContain('💬');
     unmount();
   });
 
