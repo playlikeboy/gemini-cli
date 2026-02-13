@@ -113,6 +113,11 @@ Slash commands provide meta-level control over the CLI itself.
   - **Description:** Lists all active extensions in the current Gemini CLI
     session. See [Gemini CLI Extensions](../extensions/index.md).
 
+- **`/footer`** (or **`/statusline`**)
+  - **Description:** Open an interactive dialog to configure which items appear
+    in the CLI footer (statusline). You can toggle items, reorder them, and
+    preview changes in real-time.
+
 - **`/help`**
   - **Description:** Display help information about Gemini CLI, including
     available commands and their usage.
