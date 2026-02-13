@@ -10,6 +10,7 @@ import { createMockSettings } from '../../test-utils/settings.js';
 import { Footer } from './Footer.js';
 import { tildeifyPath, ToolCallDecision } from '@google/gemini-cli-core';
 import type { SessionStatsState } from '../contexts/SessionContext.js';
+import type { UIState } from '../contexts/UIStateContext.js';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
   const original =
@@ -419,8 +420,10 @@ describe('Footer Token Formatting', () => {
     const settings = createMockSettings();
     settings.merged.ui.footer.items = ['token-count'];
 
-    const uiState: { sessionStats: Partial<SessionStatsState> } = {
+    const uiState: Partial<UIState> = {
       sessionStats: {
+        sessionStartTime: new Date(),
+        promptCount: 0,
         lastPromptTokenCount: 0,
         sessionId: 'test-session',
         metrics: {
@@ -443,7 +446,12 @@ describe('Footer Token Formatting', () => {
             totalSuccess: 0,
             totalFail: 0,
             totalDurationMs: 0,
-            totalDecisions: { accept: 0, reject: 0, modify: 0, auto_accept: 0 },
+            totalDecisions: {
+              [ToolCallDecision.ACCEPT]: 0,
+              [ToolCallDecision.REJECT]: 0,
+              [ToolCallDecision.MODIFY]: 0,
+              [ToolCallDecision.AUTO_ACCEPT]: 0,
+            },
             byName: {},
           },
           files: { totalLinesAdded: 0, totalLinesRemoved: 0 },
